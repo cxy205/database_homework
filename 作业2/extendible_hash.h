@@ -1,0 +1,77 @@
+#ifndef _EXTENDIBLE_HASHING_H_
+#define _EXTENDIBLE_HASHING_H_
+#include <bits/stdc++.h>
+
+template <typename K, typename V> class HashTable {
+public:
+  HashTable()a {}
+  virtual ~HashTable() {}
+  // lookup and modifier
+  virtual bool Find(const K &key, V &value) = 0;
+  virtual bool Remove(const K &key) = 0;
+  virtual void Insert(const K &key,const V &value) = 0;
+};
+
+template <typename K, typename V>
+class ExtendibleHash : public HashTable<K, V> {
+  struct Bucket {
+    explicit Bucket(int depth):localDepth(depth) {};
+    int localDepth;
+    std::map<K, V> items;
+  };
+
+public:
+  // constructor
+  ExtendibleHash(size_t size);
+  // helper function to generate hash addressing
+  size_t HashKey(const K &key) const;
+  // helper function to get global & local depth
+  int GetGlobalDepth() const;
+  int GetLocalDepth(int bucket_id) const;
+  int GetNumBuckets() const;
+  // lookup and modifier
+  bool Find(const K &key, V &value) override;
+  bool Remove(const K &key) override;
+  void Insert(const K &key, const V &value) override;
+
+private:
+  // add your own member variables here
+  int getBucketIndex(const K &key) const;
+  int globalDepth;
+  size_t bucketMaxSize;
+  int numBuckets;
+  std::vector<std::shared_ptr<Bucket>> bucketTable;
+  std::mutex mutex;
+};
+template <typename K, typename V>
+class ExtendibleHash : public HashTable<K, V> {
+  struct Bucket {
+    explicit Bucket(int depth):localDepth(depth) {};
+    int localDepth;
+    std::map<K, V> items;
+  };
+
+public:
+  // constructor
+  ExtendibleHash(size_t size);
+  // helper function to generate hash addressing
+  size_t HashKey(const K &key) const;
+  // helper function to get global & local depth
+  int GetGlobalDepth() const;
+  int GetLocalDepth(int bucket_id) const;
+  int GetNumBuckets() const;
+  // lookup and modifier
+  bool Find(const K &key, V &value) override;
+  bool Remove(const K &key) override;
+  void Insert(const K &key, const V &value) override;
+
+private:
+  // add your own member variables here
+  int getBucketIndex(const K &key) const;
+  int globalDepth;
+  size_t bucketMaxSize;
+  int numBuckets;
+  std::vector<std::shared_ptr<Bucket>> bucketTable;
+  std::mutex mutex;
+};
+#endif
