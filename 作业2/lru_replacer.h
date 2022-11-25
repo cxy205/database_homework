@@ -1,36 +1,51 @@
+/**
+ * lru_replacer.h
+ *
+ * Functionality: The buffer pool manager must maintain a LRU list to collect
+ * all the pages that are unpinned and ready to be swapped. The simplest way to
+ * implement LRU is a FIFO queue, but remember to dequeue or enqueue pages when
+ * a page changes from unpinned to pinned, or vice-versa.
+ */
+
 #pragma once
 
-#include <list>
-#include <mutex>  // NOLINT
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
+#include<memory>
+#include<unordered_map>
+#include<mutex>
 #include "buffer/replacer.h"
-#include "common/config.h"
+#include "hash/extendible_hash.h"
+using namespace std;
+namespace scudb {
 
-namespace bustub {
+    template <typename T> class LRUReplacer : public Replacer<T> {
+        struct Node{
+            Node(){};
+            Node(T val): val(val){};
+            T val;
+            Node* pre;
+            Node* nxt;
+        };
+    public:
+        // do not change public interface
+        LRUReplacer();
 
-class LRUReplacer : public Replacer {
- public:
+        ~LRUReplacer();
 
-  explicit LRUReplacer(int num_pages);
+        void Insert(const T &value);
 
-  ~LRUReplacer() override;
+        bool Victim(T &value);
 
-  bool Victim(int *frm_id) override;
+        bool Erase(const T &value);
 
-  void Pin(int frm_id) override;
+        size_t Size();
 
-  void Unpin(int frm_id) override;
+    private:
+        // add your member variables here
+        //typedef void (*node_ptr)(Node);
+        Node* head;
+        Node* tail;
+        unordered_map<T,Node*> map;
+        mutable mutex lock;
+    };
 
-  int Size() override;
-
- private:
-  using ItPair = std::pair<bool, std::list<int>::iterator>;
-  std::mutex lock;
-  std::list<int> data;
-  std::unordered_map<int, ItPair> map;
-};
-
-}  // namespace bustub
+} // namespace scudb
